@@ -9,7 +9,7 @@
 
 import argparse
 import sys
-from unifi.controller import Controller
+from pyunifi.controller import Controller
 
 """Nagios plugin to check the UniFi Controller for AP status."""
 
@@ -50,20 +50,25 @@ parser.add_argument(
     '-s', '--siteid', default='default',
     help='the site ID, UniFi >=3.x only (default "default")')
 parser.add_argument(
-    '-w', '--warning', default='',
+    '-w', '--warning', default='0', type=int,
     help='amount of APs to be down for WARNING (default: none)')
 parser.add_argument(
-    '-c', '--critical', default='',
+    '-c', '--critical', default='0', type=int,
     help='amount of APs to be down for CRITICAL (default: none)')
 parser.add_argument(
     '-a', '--ap', default='',
     help='name of AP to get status of (default: overall check)')
+parser.add_argument(
+    '-S', '--no_ssl_verify', default=True,
+    action='store_false', dest='ssl_verify',
+    help='whether to verify SSL cert (default: true)')
 args = parser.parse_args()
+
 
 # Connect to the AP (if we can)
 try:
     c = Controller(args.hostname, args.username, args.password,
-                   args.port, args.version, args.siteid)
+                   args.port, args.version, args.siteid, args.ssl_verify)
 except Exception as e:
     print ("UNKNOWN: Error connecting to UniFi Controller (%s)|"
            "Online=0 Offline=0" % e)
